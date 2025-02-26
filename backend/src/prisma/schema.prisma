@@ -1,0 +1,109 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int            @id @default(autoincrement())
+  firstName    String
+  lastName     String
+  phone        String
+  email        String         @unique
+  positionId   Int
+  position     Position       @relation(fields: [positionId], references: [id])
+  pansionId    Int
+  pansion      Pansion        @relation(fields: [pansionId], references: [id])
+  provinceId   Int
+  province     Province       @relation(fields: [provinceId], references: [id])
+  cityId       Int
+  city         City           @relation(fields: [cityId], references: [id])
+  PosInPansion PosInPansion[]
+}
+
+model Position {
+  id           Int            @id @default(autoincrement())
+  name         String
+  level        Role           @default(USER)
+  users        User[]
+  PosInPansion PosInPansion[]
+}
+
+model Pansion {
+  id             Int            @id @default(autoincrement())
+  name           String
+  phone          String
+  address        String         @default("nothing")
+  codeParvane    String         @unique
+  numberOfRoom   Int
+  numberOfBed    Int
+  advancePayment Float
+  priceRent      Float
+  chargeMony     Float
+  active         Boolean        @default(true)
+  typeOfContract Contract       @default(ANNUALLY)
+  imageUrl  String?
+  provinceId     Int
+  province       Province       @relation(fields: [provinceId], references: [id])
+  cityId         Int
+  city           City           @relation(fields: [cityId], references: [id])
+  positions      PosInPansion[]
+  typeOfPansion  PansionType    @default(EMPLOYEE)
+  users          User[]
+}
+
+model Province {
+  id       Int       @id @default(autoincrement())
+  name     String
+  enName   String
+  cities   City[]
+  pansions Pansion[]
+  users    User[]
+}
+
+model City {
+  id         Int       @id @default(autoincrement())
+  name       String
+  enName     String
+  provinceId Int
+  province   Province  @relation(fields: [provinceId], references: [id])
+  pansions   Pansion[]
+  users      User[]
+}
+
+model PosInPansion {
+  position   Position @relation(fields: [positionId], references: [id])
+  positionId Int
+  pansion    Pansion  @relation(fields: [pansionId], references: [id])
+  pansionId  Int
+  assignedAt DateTime @default(now())
+  assigned   User     @relation(fields: [assignedBy], references: [id])
+  assignedBy Int
+
+  @@id([positionId, pansionId])
+}
+
+enum Contract {
+  ANNUALLY
+  FOUR_MONTHS
+}
+
+enum PansionType {
+  EMPLOYEE
+  STUDENT
+}
+
+enum Role {
+  GHOST
+  USER
+  ADMIN
+}
