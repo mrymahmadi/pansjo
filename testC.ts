@@ -2,11 +2,11 @@
 import Fastify from "npm:fastify";
 import { Client } from "https://deno.land/x/postgres/mod.ts";
 const client = new Client({
-  database: "cvProject",
-  hostname: "localhost",
-  port: 5432,
-  user: "postgres",
-  password: "postgres",
+  database: "*",
+  hostname: "*",
+  port: *,
+  user: "*",
+  password: "*",
 });
 
 try {
